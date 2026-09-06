@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 . "$PSScriptRoot/SteamSession.ps1"
 $root=(Resolve-Path -LiteralPath $ArtifactRoot).Path
 $m=Get-Content -LiteralPath "$root/manifest.json" -Raw | ConvertFrom-Json
-if ($m.appid -cne '294100' -or $m.publishedfileid -cne '0000000000' -or
+if ($m.appid -cne '294100' -or $m.publishedfileid -cne '3796904995' -or
     $m.version -notmatch '^\d+\.\d+\.\d+(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?$' -or
     ($m.tag -cne "v$($m.version)" -and !(($DryRun -or $CheckOnly) -and !$m.tag))) { throw 'Manifest must identify an explicit release tag and the existing MAW Workshop item.' }
 $stage=Join-Path $root "MealsAtWork-$($m.version)"
@@ -31,9 +31,9 @@ foreach ($f in $m.files) {
 if (@(Get-ChildItem -LiteralPath $stage -File -Recurse).Count -ne $seen.Count) { throw 'Unexpected files in package.' }
 $about=[xml](Get-Content -LiteralPath "$stage/About/About.xml" -Raw)
 if ($about.ModMetaData.modVersion -cne $m.version -or
-    (Get-Content "$stage/About/PublishedFileId.txt" -Raw).Trim() -cne '0000000000') { throw 'Package identity mismatch.' }
+    (Get-Content "$stage/About/PublishedFileId.txt" -Raw).Trim() -cne '3796904995') { throw 'Package identity mismatch.' }
 function Escape-Vdf([string]$value) { $value.Replace('\','\\').Replace('"','\"').Replace("`r",'') }
-$vdf = '"workshopitem"' + "`n{`n" + '  "appid" "294100"' + "`n" + '  "publishedfileid" "0000000000"' + "`n" +
+$vdf = '"workshopitem"' + "`n{`n" + '  "appid" "294100"' + "`n" + '  "publishedfileid" "3796904995"' + "`n" +
     '  "contentfolder" "' + (Escape-Vdf $stage.Replace('\','/')) + '"' + "`n" +
     '  "changenote" "' + (Escape-Vdf $changeNote) + '"' + "`n}`n"
 $vdfPath=Join-Path $root 'workshop-upload.vdf'
@@ -71,7 +71,7 @@ try {
     $arguments=@('+@ShutdownOnFailedCommand','1','+@NoPromptForPassword','1','+login',$env:STEAM_USERNAME)
     if (!$cachedLogin) { $arguments+=$env:STEAM_PASSWORD }
     if (!$CheckOnly -and !$VerifyPublished) { $arguments+=@('+workshop_build_item',$vdfPath) }
-    if ($VerifyPublished) { $arguments+=@('+workshop_download_item','294100','0000000000','validate') }
+    if ($VerifyPublished) { $arguments+=@('+workshop_download_item','294100','3796904995','validate') }
     $arguments+='+quit'
     Push-Location -LiteralPath $steam
     try {
@@ -93,12 +93,12 @@ try {
     }
     if ($VerifyPublished) {
         if ($exitCode -ne 0) { throw 'Published content download failed.' }
-        $download=Join-Path $steam 'steamapps/workshop/content/294100/0000000000'
+        $download=Join-Path $steam 'steamapps/workshop/content/294100/3796904995'
         foreach ($f in $m.files) {
             if ((Get-FileHash -LiteralPath (Join-Path $download $f.path)).Hash -cne $f.sha256) { throw "Published file checksum mismatch: $($f.path)" }
         }
         Write-Host 'PASS: downloaded Workshop files match the release manifest.'
-    } elseif ($exitCode -ne 0 -or $text -notmatch '(?i)\bSuccess\.\s+(?:Published|Updated)[^\r\n]*\b0000000000\b') {
+    } elseif ($exitCode -ne 0 -or $text -notmatch '(?i)\bSuccess\.\s+(?:Published|Updated)[^\r\n]*\b3796904995\b') {
         throw 'Steam did not confirm the Workshop update. Validate login/Steam Guard locally and refresh the environment secrets; raw authentication output is withheld.'
     }
     dotnet $publisher publish $root
@@ -107,7 +107,7 @@ try {
         dotnet $publisher $(if ($VerifyPublished) { 'repair-notes' } else { 'publish-notes' }) $root
         if ($LASTEXITCODE) { throw 'Workshop files and descriptions are current, but localized change-note verification failed.' }
     }
-    Write-Host "Steam confirmed published Workshop item 0000000000 for $($m.tag)."
+    Write-Host "Steam confirmed published Workshop item 3796904995 for $($m.tag)."
 } finally {
     # Only this script-created temporary directory is removed; no credentials enter artifacts/caches.
     if ($steam.StartsWith([IO.Path]::GetTempPath(),[StringComparison]::OrdinalIgnoreCase) -and

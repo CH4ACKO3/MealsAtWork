@@ -8,7 +8,7 @@ using SteamKit2.Internal;
 
 static class WorkshopChangeNotes
 {
-    const ulong Item = 0000000000;
+    const ulong Item = 3796904995;
     static readonly Uri Community = new("https://steamcommunity.com/");
     static readonly string[] FormFields = ["change_description","id","language","sessionid","timestamp"];
     public sealed record Note(string Code, int Language, string Text);

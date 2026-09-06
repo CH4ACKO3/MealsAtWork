@@ -1,5 +1,9 @@
 # Meals at Work / 工作餐
 
+[GitHub](https://github.com/CH4ACKO3/MealsAtWork) · [Releases](https://github.com/CH4ACKO3/MealsAtWork/releases) · [Actions](https://github.com/CH4ACKO3/MealsAtWork/actions)
+
+自动构建与 tag 驱动的创意工坊发布说明见 [Docs/ReleaseAutomation.md](Docs/ReleaseAutomation.md)。
+
 RimWorld 1.6 模组，需要 Harmony。版本：0.5.4（饥饿订单机制已完成实机回归）。原名 Desk Lunch。
 
 殖民者在工作台制作或研究时，如果饥饿程度已达到原版找饭阈值，且背包里有符合饮食政策的成品餐食，就会边工作边吃饭。制作期间需要外出取餐时，自动进入 Lunch Break，吃完回到原任务。没有手动按钮。

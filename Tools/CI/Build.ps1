@@ -34,7 +34,7 @@ Copy-Item Assemblies/MealsAtWork.dll "$packageStage/Assemblies/MealsAtWork.dll"
 $out = (Resolve-Path -LiteralPath $OutputRoot).Path
 $stage = Join-Path $out "MealsAtWork-$version"
 # The local Steam-generated ID is ignored by Git; retain the existing item in release packages.
-Set-Content -LiteralPath "$stage/About/PublishedFileId.txt" -Value '0000000000' -NoNewline
+Set-Content -LiteralPath "$stage/About/PublishedFileId.txt" -Value '3796904995' -NoNewline
 # BuildRelease created the zip before the pinned item ID was written; replace only that generated archive.
 $zip = Join-Path $out "MealsAtWork-$version.zip"
 Compress-Archive -LiteralPath $stage -DestinationPath $zip -Force
@@ -62,7 +62,7 @@ foreach ($language in @('en','zh-CN')) {
 $files = @(Get-ChildItem -LiteralPath $stage -Recurse -File | ForEach-Object {
     [ordered]@{ path=[IO.Path]::GetRelativePath($stage,$_.FullName).Replace('\','/'); sha256=(Get-FileHash -LiteralPath $_.FullName).Hash }
 })
-[ordered]@{ version=$version; tag=$Tag; appid='294100'; publishedfileid='0000000000';
+[ordered]@{ version=$version; tag=$Tag; appid='294100'; publishedfileid='3796904995';
     commit=(git rev-parse HEAD); archive=[IO.Path]::GetFileName($zip); archiveSha256=(Get-FileHash $zip).Hash;
     descriptions=$descriptions; localizedNotes=$localizedNotes; notesSha256=(Get-FileHash "$out/release-notes.md").Hash; files=$files } |
     ConvertTo-Json -Depth 5 | Set-Content -LiteralPath "$out/manifest.json"

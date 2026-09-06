@@ -24,7 +24,7 @@ function Get-SteamSessionKey {
     return ,[Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes("MAW Steam session v1`0$env:STEAM_REFRESH_TOKEN"))
 }
 function Get-SteamSessionContext {
-    return ,[Text.Encoding]::UTF8.GetBytes("294100/0000000000/$($env:STEAM_USERNAME.Trim().ToLowerInvariant())")
+    return ,[Text.Encoding]::UTF8.GetBytes("294100/3796904995/$($env:STEAM_USERNAME.Trim().ToLowerInvariant())")
 }
 function Restore-SteamSession([string]$SteamRoot) {
     if (!$env:GH_TOKEN -or !$env:GH_REPO) { return }

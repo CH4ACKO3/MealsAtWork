@@ -54,7 +54,7 @@ static async Task<int> Run(string[] args)
                 ProtoBuf.Serializer.Serialize(stream, request);
                 stream.Position = 0;
                 var copy = ProtoBuf.Serializer.Deserialize<CPublishedFile_Update_Request>(stream);
-                if (copy.language != item.Language || copy.file_description != item.Text || copy.publishedfileid != 0000000000UL)
+                if (copy.language != item.Language || copy.file_description != item.Text || copy.publishedfileid != 3796904995UL)
                     throw new PublisherException("Localized request serialization failed.");
             }
             WorkshopChangeNotes.Validate(args[1]);
@@ -70,6 +70,7 @@ static async Task<int> Run(string[] args)
         // Read both languages and verify ownership before sending any description writes.
         var previous = new List<PublishedFileDetails>();
         foreach (var item in descriptions) previous.Add(await Read(service, item.Language, live.Client.SteamID!.ConvertToUInt64()));
+        Console.WriteLine($"Workshop visibility: {previous[0].visibility} (2 = private).");
         if (args[0] == "prepare-notes")
         {
             await WorkshopChangeNotes.Prepare(service,args[1]);
@@ -134,7 +135,7 @@ static List<Description> LoadDescriptions(string root, bool requireTag)
 {
     using var doc = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "manifest.json")));
     var m = doc.RootElement;
-    if (m.GetProperty("appid").GetString() != "294100" || m.GetProperty("publishedfileid").GetString() != "0000000000" ||
+    if (m.GetProperty("appid").GetString() != "294100" || m.GetProperty("publishedfileid").GetString() != "3796904995" ||
         (requireTag && m.GetProperty("tag").GetString() != "v" + m.GetProperty("version").GetString()))
         throw new PublisherException("Manifest does not identify the MAW release.");
     var result = new List<Description>();
@@ -153,7 +154,7 @@ static List<Description> LoadDescriptions(string root, bool requireTag)
 static CPublishedFile_Update_Request CreateUpdate(Description item, PublishedFileDetails? previous)
 {
     var request = new CPublishedFile_Update_Request
-    { appid = 294100, publishedfileid = 0000000000, language = item.Language, file_description = item.Text };
+    { appid = 294100, publishedfileid = 3796904995, language = item.Language, file_description = item.Text };
     if (previous != null)
     {
         request.title = previous.title;
@@ -166,12 +167,12 @@ static async Task<PublishedFileDetails> Read(PublishedFile service, int language
 {
     var request = new CPublishedFile_GetDetails_Request
     { appid = 294100, language = language, includetags = true, short_description = false, strip_description_bbcode = false };
-    request.publishedfileids.Add(0000000000);
+    request.publishedfileids.Add(3796904995);
     var response = await service.GetDetails(request);
     if (response.Result != EResult.OK || response.Body.publishedfiledetails.Count != 1)
         throw new PublisherException("Cannot read the existing Workshop item.");
     var item = response.Body.publishedfiledetails[0];
-    if (item.result != (uint)EResult.OK || item.publishedfileid != 0000000000UL || item.consumer_appid != 294100 || item.creator != owner)
+    if (item.result != (uint)EResult.OK || item.publishedfileid != 3796904995UL || item.consumer_appid != 294100 || item.creator != owner)
         throw new PublisherException("Workshop identity/ownership check failed.");
     return item;
 }
