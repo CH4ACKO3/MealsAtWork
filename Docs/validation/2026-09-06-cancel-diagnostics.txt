@@ -1,0 +1,36 @@
+tick=1436 atWork=False ate=True cur=# work=36 valid=False
+  at System.Environment.get_StackTrace () [0x00000] in <51fded79cd284d4d911c5949aff4cb21>:0 
+  at MealsLive.Diagnostics.Cancelling (DeskLunch.WorkMealReservations __instance, DeskLunch.WorkMealSession r) [0x00000] in <82159ab3e5ee47cb9a324d8a16755763>:0 
+  at MonoMod.Utils.DynamicMethodDefinition.DeskLunch.WorkMealReservations.Cancel_Patch1 (DeskLunch.WorkMealReservations , DeskLunch.WorkMealSession ) [0x00000] in <e53399289d9b419d83f9f5b02c5cf609>:0 
+  at DeskLunch.LunchBreakStartPatch.Prefix (Verse.Pawn ___pawn, Verse.AI.Job newJob, System.Boolean& resumeCurJobAfterwards) [0x00000] in <7a51f777bba14f30baca4a62a142ae3f>:0 
+  at MonoMod.Utils.DynamicMethodDefinition.Verse.AI.Pawn_JobTracker.StartJob_Patch1 (Verse.AI.Pawn_JobTracker , Verse.AI.Job , Verse.AI.JobCondition , Verse.AI.ThinkNode , System.Boolean , System.Boolean , Verse.ThinkTreeDef , System.Nullable`1[T] , System.Boolean , System.Boolean , System.Nullable`1[T] , System.Boolean , System.Boolean , System.Boolean ) [0x00000] in <e53399289d9b419d83f9f5b02c5cf609>:0 
+  at MonoMod.Utils.DynamicMethodDefinition.Verse.AI.Pawn_JobTracker.EndCurrentJob_Patch1 (Verse.AI.Pawn_JobTracker , Verse.AI.JobCondition , System.Boolean , System.Boolean ) [0x00000] in <e53399289d9b419d83f9f5b02c5cf609>:0 
+  at Verse.AI.JobDriver.EndJobWith (Verse.AI.JobCondition condition) [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.AI.JobDriver.TryActuallyStartNextToil () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at MonoMod.Utils.DynamicMethodDefinition.Verse.AI.JobDriver.ReadyForNextToil_Patch1 (Verse.AI.JobDriver ) [0x00000] in <e53399289d9b419d83f9f5b02c5cf609>:0 
+  at Verse.AI.JobDriver.TryActuallyStartNextToil () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at MonoMod.Utils.DynamicMethodDefinition.Verse.AI.JobDriver.ReadyForNextToil_Patch1 (Verse.AI.JobDriver ) [0x00000] in <e53399289d9b419d83f9f5b02c5cf609>:0 
+  at Verse.AI.JobDriver.TryActuallyStartNextToil () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at MonoMod.Utils.DynamicMethodDefinition.Verse.AI.JobDriver.ReadyForNextToil_Patch1 (Verse.AI.JobDriver ) [0x00000] in <e53399289d9b419d83f9f5b02c5cf609>:0 
+  at Verse.AI.JobDriver.TryActuallyStartNextToil () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at MonoMod.Utils.DynamicMethodDefinition.Verse.AI.JobDriver.ReadyForNextToil_Patch1 (Verse.AI.JobDriver ) [0x00000] in <e53399289d9b419d83f9f5b02c5cf609>:0 
+  at Verse.AI.JobDriver.DriverTick () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.AI.Pawn_JobTracker.JobTrackerTick () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.Pawn.Tick () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.Thing.DoTick () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.TickList.Tick () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.TickManager.DoSingleTick () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.TickManager.TickManagerUpdate () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.Game.UpdatePlay () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.Root_Play.Update () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+tick=420 atWork=False ate=False cur=MealsAtWork_LunchBreak#77 work=36 valid=False
+  at System.Environment.get_StackTrace () [0x00000] in <51fded79cd284d4d911c5949aff4cb21>:0 
+  at MealsLive.Diagnostics.Cancelling (DeskLunch.WorkMealReservations __instance, DeskLunch.WorkMealSession r) [0x00000] in <82159ab3e5ee47cb9a324d8a16755763>:0 
+  at MonoMod.Utils.DynamicMethodDefinition.DeskLunch.WorkMealReservations.Cancel_Patch1 (DeskLunch.WorkMealReservations , DeskLunch.WorkMealSession ) [0x00000] in <e53399289d9b419d83f9f5b02c5cf609>:0 
+  at DeskLunch.WorkMealReservations.MapComponentTick () [0x00000] in <31a201daf1a94540b83af21aa1e03536>:0 
+  at Verse.MapComponentUtility.MapComponentTick (Verse.Map map) [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.Map.MapPostTick () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.TickManager.DoSingleTick () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.TickManager.TickManagerUpdate () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.Game.UpdatePlay () [0x00000] in <61e4173561894da49d210260257b5097>:0 
+  at Verse.Root_Play.Update () [0x00000] in <61e4173561894da49d210260257b5097>:0 

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <JobDef>
+    <defName>MealsAtWork_DeliverMeal</defName>
+    <driverClass>DeskLunch.JobDriver_DeliverMeal</driverClass>
+    <reportString>delivering a meal to TargetB.</reportString>
+    <allowOpportunisticPrefix>false</allowOpportunisticPrefix>
+    <suspendable>false</suspendable>
+  </JobDef>
+  <WorkGiverDef>
+    <defName>MealsAtWork_DeliverMeal</defName>
+    <label>deliver meals to workers</label>
+    <giverClass>DeskLunch.WorkGiver_DeliverMeal</giverClass>
+    <workType>Hauling</workType>
+    <priorityInType>16</priorityInType>
+    <verb>deliver a meal to</verb>
+    <gerund>delivering a meal to</gerund>
+    <directOrderable>false</directOrderable>
+    <canBeDoneByMechs>true</canBeDoneByMechs>
+    <requiredCapacities><li>Manipulation</li></requiredCapacities>
+  </WorkGiverDef>
+</Defs>

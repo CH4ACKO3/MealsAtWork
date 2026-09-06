@@ -1,0 +1,7 @@
+Schedule Everything live defs + order admission/cancellation PASS
+cargo selection + separate handoff PASS; now chew using real work toil
+real work eating + save/load PASS: 1 delivered meal consumed, 5 tagged cargo meals preserved
+CS advanced ingest cleaning + empty worktable test started
+CS reserved exactly 1 bench + 1 seat; new bill does not evict PASS
+CS idle dining completion/load + reservation cleanup PASS
+formal table outranks nearer worktable; absent formal table permits fallback PASS

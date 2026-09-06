@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <DeskLunch.Enabled>允许边工作边吃饭</DeskLunch.Enabled>
+  <DeskLunch.Penalty>工作餐后产生 −1 心情减益（持续 1 小时）</DeskLunch.Penalty>
+  <DeskLunch.Description>殖民者饥饿时，可以在制作或研究过程中吃随身携带的合适餐食，进餐期间工作速度为 80%。没有餐食时照常寻找食物。关闭心情减益也会取消已有工作餐记忆的影响。</DeskLunch.Description>
+  <DeskLunch.Report>{0} · 正在吃工作餐（{1}%）</DeskLunch.Report>
+  <DeskLunch.FinishingReport>留在工作台吃完午餐（{0}%）</DeskLunch.FinishingReport>
+  <MealsAtWork.AllowBreaks>允许制作期间外出午休（Lunch Break）</MealsAtWork.AllowBreaks>
+  <MealsAtWork.PreferBreak>优先外出吃饭，而非边工作边吃饭</MealsAtWork.PreferBreak>
+  <MealsAtWork.IdleTables>允许把没有账单的工作台当餐桌使用</MealsAtWork.IdleTables>
+  <MealsAtWork.Deliveries>启用送餐（搬运工作）</MealsAtWork.Deliveries>
+  <MealsAtWork.DeliveryLead>预计饭点前 {0} 小时下单</MealsAtWork.DeliveryLead>
+  <MealsAtWork.DeliveryGrace>离台或短工作间隙保留订单 {0} 小时</MealsAtWork.DeliveryGrace>
+  <MealsAtWork.DeliveryWait>订单有效期／找饭等待上限：{0} 小时</MealsAtWork.DeliveryWait>
+  <MealsAtWork.TableDistanceWeight>空工作台的距离成本倍率：{0}（餐桌为 1）</MealsAtWork.TableDistanceWeight>
+</LanguageData>
+
+

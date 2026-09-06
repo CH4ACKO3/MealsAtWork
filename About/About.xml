@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>Meals at Work</name>
+  <modVersion>0.5.4</modVersion>
+  <url>https://github.com/CH4ACKO3/MealsAtWork</url>
+  <author>CH4AcKO3</author>
+  <packageId>ch4acko3.desklunch</packageId>
+  <supportedVersions><li>1.6</li></supportedVersions>
+  <modDependencies><li><packageId>brrainz.harmony</packageId><displayName>Harmony</displayName><steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl></li></modDependencies>
+  <loadAfter><li>brrainz.harmony</li><li>avilmask.CommonSense</li><li>Mehni.PickUpAndHaul</li><li>Mazo.Schedules</li></loadAfter>
+  <description>Eat a carried meal at 80% work speed, or automatically take a Lunch Break while crafting. Hungry pawns can start their next crafting job and order a meal during any stage of that job. Haulers deliver directly to the recipient's inventory. Orders survive workstation departures and courier interruptions, with a fixed two-hour default lifetime and no repeated ordering after a timeout during the same hunger episode. Shared reservations protect unfinished work and restore progress after eating. Empty worktables can also serve as dining tables; adding a bill does not interrupt an existing meal. Eating at a workstation gives an optional -1 mood penalty for one hour. Supports RimWorld 1.6 and 简体中文.</description>
+</ModMetaData>
+
+

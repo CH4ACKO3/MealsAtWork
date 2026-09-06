@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+Releases/
+artifacts/
+Assemblies/*.dll
+Assemblies/*.pdb
+About/PublishedFileId.txt
+.vs/
+*.user
+*.suo

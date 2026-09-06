@@ -1,0 +1,5 @@
+tick=314 job=HaulToCell (Job_129) A = Thing_UnfinishedApparel21715 B = (105, 0, 106) Giver = ThinkNode_QueuedJob [workGiverDef: null] meal= remain=0 food=0.29 order=False session=False
+mechSetup PASS
+tick=769 job=DoBill (Job_128) A = Thing_HandTailoringBench21707 B = Thing_UnfinishedApparel24870 C = (105, 0, 105) Giver = ThinkNode_QueuedJob [workGiverDef: null] meal= remain=0 food=0.2814285 order=True session=False
+tick=1097 job=DoBill (Job_128) A = Thing_HandTailoringBench21707 B = Thing_UnfinishedApparel24870 C = (105, 0, 105) Giver = ThinkNode_QueuedJob [workGiverDef: null] meal=MealSimple24872 remain=380 food=0.2757142 order=False session=True
+mechDone PASS

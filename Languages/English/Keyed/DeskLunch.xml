@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <DeskLunch.Enabled>Allow meals while working</DeskLunch.Enabled>
+  <DeskLunch.Penalty>Apply the −1 mood penalty after eating at work (1 hour)</DeskLunch.Penalty>
+  <DeskLunch.Description>Hungry colonists can eat suitable meals from their inventory during crafting or research. Work runs at 80% speed while eating. Without a meal, they find food normally. Disabling the mood penalty also removes its effect from existing memories.</DeskLunch.Description>
+  <DeskLunch.Report>{0} — eating lunch ({1}%)</DeskLunch.Report>
+  <DeskLunch.FinishingReport>Finishing lunch at the workstation ({0}%)</DeskLunch.FinishingReport>
+  <MealsAtWork.AllowBreaks>Allow Lunch Breaks during crafting</MealsAtWork.AllowBreaks>
+  <MealsAtWork.PreferBreak>Prefer leaving for lunch over eating at work</MealsAtWork.PreferBreak>
+  <MealsAtWork.IdleTables>Use worktables with no bills as dining tables</MealsAtWork.IdleTables>
+  <MealsAtWork.Deliveries>Enable meal deliveries (hauling work)</MealsAtWork.Deliveries>
+  <MealsAtWork.DeliveryLead>Order meals {0} hours before predicted hunger</MealsAtWork.DeliveryLead>
+  <MealsAtWork.DeliveryGrace>Keep orders during work gaps for {0} hours</MealsAtWork.DeliveryGrace>
+  <MealsAtWork.DeliveryWait>Order lifetime / food-search deferral: {0} hours</MealsAtWork.DeliveryWait>
+  <MealsAtWork.TableDistanceWeight>Empty worktable distance cost: {0}x (dining table: 1x)</MealsAtWork.TableDistanceWeight>
+</LanguageData>
+
+

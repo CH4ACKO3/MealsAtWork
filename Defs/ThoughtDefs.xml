@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThoughtDef>
+    <defName>DeskLunch_AteWhileWorking</defName>
+    <thoughtClass>DeskLunch.Thought_DeskLunch</thoughtClass>
+    <durationDays>0.041666667</durationDays>
+    <stackLimit>1</stackLimit>
+    <nullifyingTraits><li>Ascetic</li></nullifyingTraits>
+    <nullifyingPrecepts><li MayRequire="Ludeon.RimWorld.Ideology">RoughLiving_Welcomed</li></nullifyingPrecepts>
+    <stages><li><label>ate at a workstation</label><description>I should eat at a proper dining table.</description><baseMoodEffect>-1</baseMoodEffect></li></stages>
+  </ThoughtDef>
+</Defs>

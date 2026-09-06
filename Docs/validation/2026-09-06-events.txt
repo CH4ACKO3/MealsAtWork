@@ -1,0 +1,7 @@
+waitQuery=True
+waitQuery=True
+waitQuery=False
+waitQuery=True
+secondReservation=False
+thoughtChecks=PASS ordinary -1; ascetic existing/new suppressed
+socialChecks=PASS prison meal old filter true; new filter false

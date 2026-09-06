@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net48</TargetFramework><LangVersion>latest</LangVersion><AssemblyName>MealsLive</AssemblyName><AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath><DebugType>none</DebugType></PropertyGroup>
+  <ItemGroup>
+    <Reference Include="com.rlabrecque.steamworks.net"><HintPath>D:/App/Steam/steamapps/common/RimWorld/RimWorldWin64_Data/Managed/com.rlabrecque.steamworks.net.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>D:/App/Steam/steamapps/workshop/content/294100/2009463077/Current/Assemblies/0Harmony.dll</HintPath><Private>false</Private></Reference>
+    <ProjectReference Include="../../Source/MealsAtWork/MealsAtWork.csproj" />
+    <Reference Include="Assembly-CSharp"><HintPath>D:/App/Steam/steamapps/common/RimWorld/RimWorldWin64_Data/Managed/Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>D:/App/Steam/steamapps/common/RimWorld/RimWorldWin64_Data/Managed/UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>
