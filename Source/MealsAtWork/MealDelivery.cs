@@ -59,13 +59,14 @@ namespace DeskLunch
             && (food.IsSociallyProper(courier) || food.IsSociallyProper(receiver, receiver.IsPrisonerOfColony, !courier.IsAnimal));
         public static bool Hungry(Pawn p) => p?.needs?.food != null
             && p.needs.food.CurLevelPercentage <= p.RaceProps.FoodLevelPercentageWantEat;
-        public static bool WorkJob(Job job) => job?.targetA.Thing is Building_WorkTable
-            && job.def?.driverClass != null && typeof(JobDriver_DoBill).IsAssignableFrom(job.def.driverClass);
+        public static bool WorkJob(Job job) => job?.def?.driverClass != null
+            && (job.targetA.Thing is Building_WorkTable && typeof(JobDriver_DoBill).IsAssignableFrom(job.def.driverClass)
+                || job.targetA.Thing is Building_ResearchBench && typeof(JobDriver_Research).IsAssignableFrom(job.def.driverClass));
         public bool CanOrder(Pawn p) => DeskLunchMod.Settings.deliveries && Eligible(p)
             && MealSchedule.AllowsWorkMeals(p) && Hungry(p) && !HasMeal(p) && !timedOut.Contains(p)
             && (Get(p) == null || Get(p).WaitWithinLimit(Now, DeskLunchMod.Settings.deliveryWait))
             && p.needs.food.CurLevelPercentage > p.RaceProps.FoodLevelPercentageWantEat * 0.4f
-            && DeskLunchMod.Settings.deliveryWait > 0;
+            && DeskLunchMod.Settings.deliveryWait > 0 && MealCouriers.HasCourier(p);
         public bool CanChooseWork(Pawn p) => CanOrder(p)
             || DeskLunchMod.Settings.enabled && !DeskLunchMod.Settings.preferLunchBreak && Eligible(p)
             && MealSchedule.AllowsWorkMeals(p) && Hungry(p) && HasMeal(p)
@@ -87,7 +88,8 @@ namespace DeskLunch
         }
         public bool InTransit(MealOrder o) => o.pickedUp && o.courier != null && o.courier.Spawned
             && o.courier.Map == map && !o.courier.Downed && !o.courier.Dead && !o.courier.Drafted
-            && o.courier.CurJob?.loadID == o.deliveryJob && MealFor(o.receiver, o.courier.carryTracker.CarriedThing);
+            && o.courier.CurJob?.loadID == o.deliveryJob
+            && (o.courier.jobs.curDriver as JobDriver_DeliverMeal)?.HasCargoFor(o.receiver) == true;
         public static bool ShouldWait(Pawn p)
         {
             var manager = For(p);
@@ -97,7 +99,7 @@ namespace DeskLunch
             if (p.needs?.food != null && p.needs.food.CurLevelPercentage >= p.RaceProps.FoodLevelPercentageWantEat)
                 return false;
             // Only defer food during work time and non-urgent hunger; keep the order otherwise.
-            return manager.Valid(o) && MealSchedule.AllowsWorkMeals(p)
+            return manager.Valid(o) && MealSchedule.AllowsWorkMeals(p) && MealCouriers.HasCourier(p)
                 && p.needs.food.CurLevelPercentage > p.RaceProps.FoodLevelPercentageWantEat * 0.4f;
         }
         public override void MapComponentTick()
@@ -137,76 +139,30 @@ namespace DeskLunch
             MealDelivery.For(pawn).orders.Where(o => o.courier == null).Select(o => (Thing)o.receiver).ToArray();
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            if (!(t is Pawn receiver) || receiver == pawn) return null;
+            if (!(t is Pawn receiver) || !MealCouriers.CanServe(pawn, receiver)) return null;
             var manager = MealDelivery.For(pawn);
             var order = manager.Get(receiver);
             if (order == null || order.courier != null || !manager.Valid(order)
                 || !pawn.CanReach(receiver, PathEndMode.Touch, Danger.None)) return null;
             // Physical prepared meals only; never create a dispenser/cooking job for a courier.
-            Thing meal = pawn.Map.listerThings.ThingsInGroup(ThingRequestGroup.FoodSourceNotPlantOrTree)
-                .Where(f => f.Spawned && MealDelivery.Deliverable(receiver, pawn, f) && !f.IsForbidden(pawn)
-                    && pawn.CanReserve(f, 1, 1) && pawn.CanReach(f, PathEndMode.ClosestTouch, Danger.None))
-                .OrderBy(f => f.Position.DistanceToSquared(pawn.Position)).FirstOrDefault();
+            Thing meal = FindMeal(pawn, receiver);
             if (meal == null) return null;
             Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("MealsAtWork_DeliverMeal"), meal, receiver);
             job.count = 1;
             return job;
         }
+        public static Thing FindMeal(Pawn pawn, Pawn receiver, Dictionary<Thing, int> planned = null, float plannedMass = 0)
+        {
+            if (pawn.inventory == null || pawn.carryTracker.CarriedThing != null) return null;
+            return pawn.Map.listerThings.ThingsInGroup(ThingRequestGroup.FoodSourceNotPlantOrTree)
+                .Where(f => f.Spawned && MealDelivery.Deliverable(receiver, pawn, f) && !f.IsForbidden(pawn)
+                    && pawn.carryTracker.MaxStackSpaceEver(f.def) > (planned != null && planned.TryGetValue(f, out int n) ? n : 0)
+                    && (!MassUtility.CanEverCarryAnything(pawn) || MassUtility.FreeSpace(pawn) >= plannedMass + f.GetStatValue(StatDefOf.Mass))
+                    && MealCouriers.FreeVolume(pawn) >= f.def.VolumePerUnit + (planned?.Sum(kv => kv.Key.def.VolumePerUnit * kv.Value) ?? 0)
+                    && pawn.CanReserve(f, 1, 1 + (planned != null && planned.TryGetValue(f, out int count) ? count : 0))
+                    && pawn.CanReach(f, PathEndMode.ClosestTouch, Danger.None))
+                .OrderBy(f => f.Position.DistanceToSquared(pawn.Position)).FirstOrDefault();
+        }
     }
 
-    public sealed class JobDriver_DeliverMeal : JobDriver
-    {
-        MealDelivery Manager => MealDelivery.For(pawn);
-        MealOrder Order => Manager?.Get(job.targetB.Pawn);
-        bool OwnOrder => Order != null && Order.courier == pawn && Order.deliveryJob == job.loadID;
-        public override bool TryMakePreToilReservations(bool errorOnFailed)
-        {
-            var o = Order;
-            if (o == null || o.courier != null || !Manager.Valid(o)
-                || !pawn.Reserve(job.targetA, job, 1, 1, null, errorOnFailed)) return false;
-            if (Manager.Claim(o, pawn, job.loadID)) return true;
-            pawn.Map.reservationManager.Release(job.targetA, pawn, job);
-            return false;
-        }
-        protected override IEnumerable<Toil> MakeNewToils()
-        {
-            this.FailOn(() => !OwnOrder || !Manager.Valid(Order));
-            this.FailOnDestroyedOrNull(TargetIndex.A);
-            this.FailOnDespawnedNullOrForbidden(TargetIndex.B);
-            AddFinishAction(condition =>
-            {
-                if (OwnOrder)
-                {
-                    Manager.ReleaseCourier(Order);
-                }
-                // Failed handoffs leave real food in the world, never delete it.
-                if (pawn.carryTracker.CarriedThing != null && pawn.Spawned)
-                    pawn.carryTracker.TryDropCarriedThing(pawn.Position, ThingPlaceMode.Near, out _);
-            });
-            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.ClosestTouch);
-            var check = ToilMaker.MakeToil("ValidateMeal");
-            check.initAction = () => { if (!MealDelivery.Deliverable(job.targetB.Pawn, pawn, job.targetA.Thing) || job.targetA.Thing.IsForbidden(pawn)) EndJobWith(JobCondition.Incompletable); };
-            check.defaultCompleteMode = ToilCompleteMode.Instant;
-            yield return check;
-            yield return Toils_Haul.StartCarryThing(TargetIndex.A);
-            var picked = ToilMaker.MakeToil("MealInTransit");
-            picked.initAction = () => { if (OwnOrder) Order.pickedUp = true; };
-            picked.defaultCompleteMode = ToilCompleteMode.Instant;
-            yield return picked;
-            yield return Toils_Goto.GotoThing(TargetIndex.B, PathEndMode.Touch);
-            var give = ToilMaker.MakeToil("DeliverMealToInventory");
-            give.defaultCompleteMode = ToilCompleteMode.Instant;
-            give.initAction = () =>
-            {
-                Pawn recipient = job.targetB.Pawn;
-                Thing meal = pawn.carryTracker.CarriedThing;
-                if (!OwnOrder || !Manager.Valid(Order) || !pawn.Position.AdjacentTo8WayOrInside(recipient.Position)
-                    || !MealDelivery.MealFor(recipient, meal)) { EndJobWith(JobCondition.Incompletable); return; }
-                if (MealCargo.TransferDelivery(pawn, recipient, meal))
-                    Manager.orders.Remove(Order);
-                else EndJobWith(JobCondition.Incompletable);
-            };
-            yield return give;
-        }
-    }
 }

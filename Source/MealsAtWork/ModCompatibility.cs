@@ -19,6 +19,7 @@ namespace DeskLunch
         public static bool IsCargo(Pawn pawn, Thing food)
         {
             if (pawn == null || food == null) return false;
+            if ((pawn.jobs?.curDriver as JobDriver_DeliverMeal)?.IsCargo(food) == true) return true;
             if (hauled != null && pawn.AllComps != null)
             {
                 var comp = pawn.AllComps.FirstOrDefault(c => haulComp.IsInstanceOfType(c));
@@ -35,7 +36,9 @@ namespace DeskLunch
         public static bool TransferDelivery(Pawn courier, Pawn recipient, Thing food)
         {
             // A merge with a hauled stack would inherit the destination stack's cargo tag.
-            return courier.carryTracker.innerContainer.TryTransferToContainer(food,
+            var source = food?.holdingOwner;
+            if (source != courier.carryTracker.innerContainer && source != courier.inventory?.innerContainer) return false;
+            return source != null && source.TryTransferToContainer(food,
                 recipient.inventory.innerContainer, 1, canMergeWithExistingStacks: false) == 1;
         }
     }

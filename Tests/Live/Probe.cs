@@ -26,8 +26,8 @@ namespace MealsLive
     public static class Probe
     {
         public const string Folder = "D:/Projects/rimworld/work/meals-live-20260906/";
-        public static Pawn Worker => Find.CurrentMap.mapPawns.FreeColonists.First(p => p.Name.ToStringShort == "Worker");
-        public static Pawn Courier => Find.CurrentMap.mapPawns.FreeColonists.First(p => p.Name.ToStringShort == "Courier");
+        public static Pawn Worker => Find.CurrentMap.mapPawns.FreeColonists.Last(p => p.Name.ToStringShort == "Worker");
+        public static Pawn Courier => Find.CurrentMap.mapPawns.FreeColonists.Last(p => p.Name.ToStringShort == "Courier");
         public static Building_WorkTable Bench => Find.CurrentMap.listerBuildings.AllBuildingsColonistOfClass<Building_WorkTable>().First(t => t.def.defName == "HandTailoringBench");
         [DebugAction("Meals live", "Run command", allowedGameStates = AllowedGameStates.PlayingOnMap)]
         public static void Command()
@@ -35,6 +35,7 @@ namespace MealsLive
             try
             {
                 string command = File.ReadAllText(Folder + "command.txt").Trim();
+                if (command.StartsWith("batch")) { BatchProbe.Run(command); return; }
                 if (command.StartsWith("mech")) { MechProbe.Run(command); return; }
                 if (command.StartsWith("draftTest")) { DraftProbe.Change(command); return; }
                 if (command == "draftInspect") { DraftProbe.Run(); return; }
@@ -158,7 +159,7 @@ namespace MealsLive
             worker.jobs.TryTakeOrderedJob(work, JobTag.MiscWork);
             worker.CurJob.playerForced = false;
         }
-        static Pawn SpawnPawn(string name, IntVec3 cell)
+        public static Pawn SpawnPawn(string name, IntVec3 cell)
         {
             Pawn p = PawnGenerator.GeneratePawn(new PawnGenerationRequest(PawnKindDefOf.Colonist, Faction.OfPlayer,
                 forceGenerateNewPawn: true, canGeneratePawnRelations: false, allowDowned: false));

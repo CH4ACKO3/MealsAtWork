@@ -64,7 +64,7 @@ static class Program
 
         var harmony = new Harmony("ch4acko3.desklunch.tests");
         harmony.PatchAll(typeof(DeskLunchMod).Assembly);
-        Check(Harmony.GetAllPatchedMethods().Count(m => Harmony.GetPatchInfo(m).Owners.Contains(harmony.Id)) == 20, "Missing Harmony patches");
+        Check(Harmony.GetAllPatchedMethods().Count(m => Harmony.GetPatchInfo(m).Owners.Contains(harmony.Id)) == 21, "Missing Harmony patches");
         var toil = new Toil { tickIntervalAction = _ => { } };
         var before = toil.tickIntervalAction;
         LunchUtility.EnableFor(toil);
@@ -83,7 +83,7 @@ static class Program
         TestMealSchedule();
         TestCompletionTransition();
         harmony.UnpatchAll(harmony.Id);
-        Console.WriteLine($"PASS: {checks} assertions; XML/settings, timing, shared reservations, new-bill dining continuity, hunger orders/fixed deadline/courier retry, 20 Harmony targets.");
+        Console.WriteLine($"PASS: {checks} assertions; XML/settings, timing, shared reservations, new-bill dining continuity, hunger orders/fixed deadline/courier retry, 21 Harmony targets.");
     }
 
     static void TestDeliveryTiming()
@@ -106,6 +106,9 @@ static class Program
             "Courier interruption deleted or renewed order");
         var bill = new Job { def = new JobDef { driverClass = typeof(JobDriver_DoBill) }, targetA = new Building_WorkTable() };
         Check(MealDelivery.WorkJob(bill), "Work stages not admitted");
+        Check(MealDelivery.WorkJob(new Job { def = new JobDef { driverClass = typeof(JobDriver_Research) }, targetA = new Building_ResearchBench() }), "Research orders not admitted");
+        Check(!MealDelivery.WorkJob(new Job { def = new JobDef { driverClass = typeof(JobDriver_Research) }, targetA = new Building_WorkTable() }), "Research admitted at incompatible target");
+        Check(!MealCouriers.HasCourier(null) && !MealCouriers.HasCourier(new Pawn()), "Off-map receiver has courier");
         Check(!MealDelivery.WorkJob(new Job { def = new JobDef { driverClass = typeof(JobDriver_Ingest) }, targetA = new Building_WorkTable() }), "Non-work admitted");
         var manager = new MealDelivery(null);
         var courierA = new Pawn { thingIDNumber = 801 };
