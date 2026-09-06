@@ -50,7 +50,8 @@ try {
     & $publisher -ArtifactRoot $testRoot -DryRun
     $vdf=Get-Content (Join-Path $testRoot 'workshop-upload.vdf') -Raw
     if ($vdf -notmatch '\\"quote\\"' -or $vdf -notmatch 'C:\\\\test' -or $vdf -notmatch "`nEnglish") { throw 'VDF escaping failed.' }
-    if ($vdf -match '"(title|description|visibility|tags|previewfile)"') { throw 'Unexpected Workshop metadata update.' }
+    if ($vdf -match '"(title|description|visibility|tags)"') { throw 'Unexpected Workshop metadata update.' }
+    if ($vdf -notmatch '"previewfile"\s+"[^"\r\n]+/About/preview\.png"') { throw 'Missing Workshop preview upload.' }
     Write-Host 'PASS: invalid identity/tag/path, modified/extra files, VDF escaping and metadata preservation.'
 } finally {
     $resolved=[IO.Path]::GetFullPath($testRoot)

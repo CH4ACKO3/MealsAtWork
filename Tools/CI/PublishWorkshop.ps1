@@ -33,8 +33,12 @@ $about=[xml](Get-Content -LiteralPath "$stage/About/About.xml" -Raw)
 if ($about.ModMetaData.modVersion -cne $m.version -or
     (Get-Content "$stage/About/PublishedFileId.txt" -Raw).Trim() -cne '3796904995') { throw 'Package identity mismatch.' }
 function Escape-Vdf([string]$value) { $value.Replace('\','\\').Replace('"','\"').Replace("`r",'') }
+$previewPath=Join-Path $stage 'About/preview.png'
+if (!$seen.ContainsKey('About/preview.png') -or !(Test-Path -LiteralPath $previewPath)) { throw 'Missing preview image in release manifest.' }
+if ((Get-Item -LiteralPath $previewPath).Length -ge 1MB) { throw 'Workshop preview image must be smaller than 1 MB.' }
 $vdf = '"workshopitem"' + "`n{`n" + '  "appid" "294100"' + "`n" + '  "publishedfileid" "3796904995"' + "`n" +
     '  "contentfolder" "' + (Escape-Vdf $stage.Replace('\','/')) + '"' + "`n" +
+    '  "previewfile" "' + (Escape-Vdf $previewPath.Replace('\','/')) + '"' + "`n" +
     '  "changenote" "' + (Escape-Vdf $changeNote) + '"' + "`n}`n"
 $vdfPath=Join-Path $root 'workshop-upload.vdf'
 [IO.File]::WriteAllText($vdfPath,$vdf,[Text.UTF8Encoding]::new($false))

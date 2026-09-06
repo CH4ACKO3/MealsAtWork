@@ -118,7 +118,26 @@ static async Task<int> Run(string[] args)
                 throw new PublisherException($"Post-update verification failed for language {item.Language}; inspect Workshop before retrying.");
             Console.WriteLine($"Verified Workshop description: {(item.Language == 0 ? "english" : "schinese")}.");
         }
-        return 0;
+        var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(args[1], "manifest.json")));
+        var version = manifest.RootElement.GetProperty("version").GetString();
+        var previewPath = Path.Combine(args[1], $"MealsAtWork-{version}", "About", "preview.png");
+        var expectedPreviewHash = SHA256.HashData(File.ReadAllBytes(previewPath));
+        using var http = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        for (var attempt = 0; attempt < 5; attempt++)
+        {
+            var item = await Read(service, 0, live.Client.SteamID!.ConvertToUInt64());
+            if (Uri.TryCreate(item.preview_url, UriKind.Absolute, out var previewUri) && previewUri.Scheme == "https")
+            {
+                var downloaded = await http.GetByteArrayAsync(previewUri);
+                if (SHA256.HashData(downloaded).SequenceEqual(expectedPreviewHash))
+                {
+                    Console.WriteLine("PASS: Workshop primary preview matches About/preview.png.");
+                    return 0;
+                }
+            }
+            await Task.Delay(2000);
+        }
+        throw new PublisherException("Workshop primary preview does not match the release image.");
     }
     catch (Exception ex)
     {
