@@ -71,7 +71,7 @@ try {
     $arguments=@('+@ShutdownOnFailedCommand','1','+@NoPromptForPassword','1','+login',$env:STEAM_USERNAME)
     if (!$cachedLogin) { $arguments+=$env:STEAM_PASSWORD }
     if (!$CheckOnly -and !$VerifyPublished) { $arguments+=@('+workshop_build_item',$vdfPath) }
-    if ($VerifyPublished) { $arguments+=@('+workshop_download_item','294100','3796904995','validate') }
+    if (!$CheckOnly) { $arguments+=@('+workshop_download_item','294100','3796904995','validate') }
     $arguments+='+quit'
     Push-Location -LiteralPath $steam
     try {
@@ -91,16 +91,14 @@ try {
         Write-Host 'PASS: SteamCMD login and bilingual ownership verified. No Workshop writes performed.'
         return
     }
-    if ($VerifyPublished) {
-        if ($exitCode -ne 0) { throw 'Published content download failed.' }
-        $download=Join-Path $steam 'steamapps/workshop/content/294100/3796904995'
-        foreach ($f in $m.files) {
-            if ((Get-FileHash -LiteralPath (Join-Path $download $f.path)).Hash -cne $f.sha256) { throw "Published file checksum mismatch: $($f.path)" }
-        }
-        Write-Host 'PASS: downloaded Workshop files match the release manifest.'
-    } elseif ($exitCode -ne 0 -or $text -notmatch '(?i)\bSuccess\.\s+(?:Published|Updated)[^\r\n]*\b3796904995\b') {
-        throw 'Steam did not confirm the Workshop update. Validate login/Steam Guard locally and refresh the environment secrets; raw authentication output is withheld.'
+    if ($exitCode -ne 0) { throw 'Workshop upload/download command failed; raw authentication output is withheld.' }
+    # Verify the remote bytes instead of depending on SteamCMD's localized success text.
+    $download=Join-Path $steam 'steamapps/workshop/content/294100/3796904995'
+    foreach ($f in $m.files) {
+        if ((Get-FileHash -LiteralPath (Join-Path $download $f.path)).Hash -cne $f.sha256) { throw "Published file checksum mismatch: $($f.path)" }
     }
+    if (@(Get-ChildItem -LiteralPath $download -File -Recurse).Count -ne $seen.Count) { throw 'Unexpected files in downloaded Workshop content.' }
+    Write-Host 'PASS: downloaded Workshop files match the release manifest.'
     dotnet $publisher publish $root
     if ($LASTEXITCODE) { throw 'Workshop files uploaded, but bilingual description verification failed. Inspect both languages before retrying.' }
     if ($hasLocalizedNotes) {
