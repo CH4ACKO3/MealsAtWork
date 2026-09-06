@@ -96,7 +96,11 @@ static class WorkshopChangeNotes
     {
         using var http=await CreateCommunityClient(client,refreshToken);
         var timestamp=await Latest(client.GetHandler<SteamUnifiedMessages>()!.CreateService<PublishedFile>());
-        if (timestamp == 0) throw new PublisherException("Workshop change history is empty.");
+        if (timestamp == 0)
+        {
+            Console.WriteLine("Workshop has no change history yet; editor verification is deferred until the first upload.");
+            return;
+        }
         var body=await http.GetStringAsync($"sharedfiles/editchangelogentry/{Item}/{timestamp}/?language=0");
         var endpoint=body.IndexOf("ajaxsetchangelogentry",StringComparison.Ordinal);
         if (endpoint < 0) throw new PublisherException("Workshop change-note editor contract is unavailable.");
