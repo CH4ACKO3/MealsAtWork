@@ -78,12 +78,13 @@ static class Program
         Check(before != toil.tickIntervalAction, "Pooled toil retained old registration");
         TestCompletionHold(harmony);
         TestSharedMealReservations(harmony);
+        TestBatchTouchArrival(harmony);
         TestIdleTableAdmission(harmony);
         TestDeliveryTiming();
         TestMealSchedule();
         TestCompletionTransition();
         harmony.UnpatchAll(harmony.Id);
-        Console.WriteLine($"PASS: {checks} assertions; XML/settings, timing, shared reservations, new-bill dining continuity, hunger orders/fixed deadline/courier retry, 21 Harmony targets.");
+        Console.WriteLine($"PASS: {checks} assertions; XML/settings, timing, shared reservations, batch Touch arrival, new-bill dining continuity, hunger orders/fixed deadline/courier retry, 21 Harmony targets.");
     }
 
     static void TestDeliveryTiming()
@@ -172,6 +173,33 @@ static class Program
     static bool SpawnedForTest(ref bool __result) { __result = true; return false; }
     static bool NoMapForTest(ref Map __result) { __result = null; return false; }
     static bool NotBurningForTest(ref bool __result) { __result = false; return false; }
+    static bool touchAllowed;
+    static bool SimulateImmediateTouch(ref bool __result) { __result = touchAllowed; return false; }
+    static bool SkipStartPath() => false;
+    static void TestBatchTouchArrival(Harmony harmony)
+    {
+        var immediate = AccessTools.Method(typeof(ReachabilityImmediate), nameof(ReachabilityImmediate.CanReachImmediate),
+            new[] { typeof(Pawn), typeof(LocalTargetInfo), typeof(PathEndMode) });
+        var startPath = AccessTools.Method(typeof(Pawn_PathFollower), nameof(Pawn_PathFollower.StartPath),
+            new[] { typeof(LocalTargetInfo), typeof(PathEndMode) });
+        harmony.Patch(immediate,
+            prefix: new HarmonyMethod(typeof(Program), nameof(SimulateImmediateTouch)));
+        harmony.Patch(startPath,
+            prefix: new HarmonyMethod(typeof(Program), nameof(SkipStartPath)));
+        var pawn = new Pawn();
+        pawn.pather = new Pawn_PathFollower(pawn);
+        pawn.Position = new IntVec3(10, 0, 10);
+        var target = new Thing();
+        target.Position = new IntVec3(11, 0, 11); // Geometrically adjacent; Touch may still reject a blocked corner.
+        var driver = new JobDriver_DeliverMeal { pawn = pawn, job = new Job() };
+        var walk = AccessTools.Method(typeof(JobDriver_DeliverMeal), "WalkTo");
+        touchAllowed = false;
+        Check(!(bool)walk.Invoke(driver, new object[] { target, 1 }), "Blocked diagonal counted as Touch arrival");
+        touchAllowed = true;
+        Check((bool)walk.Invoke(driver, new object[] { target, 1 }), "Valid immediate Touch did not complete travel");
+        harmony.Unpatch(immediate, HarmonyPatchType.Prefix, harmony.Id);
+        harmony.Unpatch(startPath, HarmonyPatchType.Prefix, harmony.Id);
+    }
     static void TestIdleTableAdmission(Harmony harmony)
     {
         // Mock only scene presence/fire. BillStack, session validation and job identity

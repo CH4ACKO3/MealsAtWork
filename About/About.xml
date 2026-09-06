@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>Meals at Work</name>
-  <modVersion>0.6.1</modVersion>
+  <modVersion>0.6.2</modVersion>
   <url>https://github.com/CH4ACKO3/MealsAtWork</url>
   <author>CH4AcKO3</author>
   <packageId>ch4acko3.desklunch</packageId>

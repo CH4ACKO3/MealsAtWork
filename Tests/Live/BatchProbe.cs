@@ -133,6 +133,8 @@ namespace MealsLive
                 carrier.jobs.StartJob(job,JobCondition.InterruptForced);
                 var driver=carrier.jobs.curDriver as JobDriver_DeliverMeal;
                 Check(driver?.stops.Count==3,"one courier claims three orders");
+                Check(driver.stops.Select(s=>s.source).Distinct().All(s=>carrier.Map.reservationManager.ReservedBy(s,carrier,driver.job)),
+                    "meal sources reserved before pickup");
                 Check(driver.stops.Single(s=>s.receiver==third).source.def==ThingDefOf.MealSurvivalPack,"individual dietary policy");
                 return;
             }
@@ -141,6 +143,20 @@ namespace MealsLive
             {
                 Check(active!=null && active.stops.Count==3 && active.stops.All(s=>s.cargo!=null),"collected all three meals before delivery");
                 Check(active.stops.All(s=>MealCargo.IsCargo(active.pawn,s.cargo)),"delivery inventory marked as cargo");
+                Check(active.stops.Select(s=>s.source).Distinct().All(s=>!active.pawn.Map.reservationManager.ReservedBy(s,active.pawn,active.job)),
+                    "meal source reservations released after pickup");
+                var shrunken = ThingMaker.MakeThing(ThingDefOf.MealSurvivalPack);
+                shrunken.stackCount = 1;
+                GenSpawn.Spawn(shrunken, active.pawn.Position, active.pawn.Map);
+                var first = new MealDeliveryStop { source=shrunken };
+                var second = new MealDeliveryStop { source=shrunken };
+                active.stops.Add(first); active.stops.Add(second);
+                Check(active.pawn.Reserve(shrunken,active.job,1,1,null,false),"shrunken source setup reservation");
+                AccessTools.Method(typeof(JobDriver_DeliverMeal),"ResizeSourceReservation").Invoke(active,new object[]{shrunken});
+                Check(!active.stops.Contains(first) && !active.stops.Contains(second)
+                    && !active.pawn.Map.reservationManager.ReservedBy(shrunken,active.pawn,active.job),
+                    "failed source re-reservation retained unreserved stops");
+                shrunken.Destroy();
             }
             if(command=="batchCancel") { Named("BatchSecond").drafter.Drafted=true; }
             if(command=="batchDone")

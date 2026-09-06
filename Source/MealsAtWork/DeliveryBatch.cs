@@ -67,7 +67,7 @@ namespace DeskLunch
                     stops.RemoveAll(s => s.source == group.Key);
             }
             foreach (var stop in stops.ToArray())
-                if (!Manager.Claim(Manager.Get(stop.receiver), pawn, job.loadID)) stops.Remove(stop);
+                if (!Manager.Claim(Manager.Get(stop.receiver), pawn, job.loadID)) RemoveStop(stop);
             return stops.Count > 0;
         }
 
@@ -76,21 +76,44 @@ namespace DeskLunch
             if (stop.cargo != null && pawn.Spawned && pawn.inventory.innerContainer.Contains(stop.cargo))
                 pawn.inventory.innerContainer.TryDrop(stop.cargo, pawn.Position, pawn.Map, ThingPlaceMode.Near, out Thing _);
         }
-        void RemoveStop(MealDeliveryStop stop)
+        void ReleaseSourceReservation(Thing source)
         {
+            if (source == null || source.Destroyed || !pawn.Spawned
+                || !pawn.Map.reservationManager.ReservedBy(source, pawn, job)) return;
+            pawn.Map.reservationManager.Release(source, pawn, job);
+        }
+        void ResizeSourceReservation(Thing source)
+        {
+            if (source == null || source.Destroyed || !pawn.Spawned
+                || !pawn.Map.reservationManager.ReservedBy(source, pawn, job)) return;
+            pawn.Map.reservationManager.Release(source, pawn, job);
+            int remaining = stops.Count(s => s.cargo == null && s.source == source);
+            if (remaining > 0 && (!source.Spawned || !pawn.Reserve(source, job, 1, remaining, null, false)))
+            {
+                // Do not leave unreserved pickup work behind if a forced or modded
+                // interaction changed the stack while this job held its reservation.
+                foreach (var stop in stops.Where(s => s.cargo == null && s.source == source).ToArray())
+                    RemoveStop(stop, resizeReservation: false);
+            }
+        }
+        void RemoveStop(MealDeliveryStop stop, bool resizeReservation = true)
+        {
+            Thing pendingSource = stop.cargo == null ? stop.source : null;
             if (Owns(stop)) Manager.ReleaseCourier(Manager.Get(stop.receiver));
             DropCargo(stop);
             stops.Remove(stop);
+            if (resizeReservation) ResizeSourceReservation(pendingSource);
         }
         void FinishBatch()
         {
-            foreach (var stop in stops.ToArray()) RemoveStop(stop);
+            // Pawn_JobTracker has already cleared this job's reservations before finish actions run.
+            foreach (var stop in stops.ToArray()) RemoveStop(stop, resizeReservation: false);
             if (pawn.Spawned && pawn.carryTracker.CarriedThing != null)
                 pawn.carryTracker.TryDropCarriedThing(pawn.Position, ThingPlaceMode.Near, out _);
         }
         bool WalkTo(Thing target, int delta)
         {
-            if (pawn.Position.AdjacentTo8WayOrInside(target.Position))
+            if (pawn.CanReachImmediate(target, PathEndMode.Touch))
             { pawn.pather.StopDead(); travellingTo = null; travelTicks = 0; return true; }
             if (travellingTo != target) { travellingTo = target; travelTicks = 0; }
             travelTicks += delta;
@@ -127,6 +150,9 @@ namespace DeskLunch
                 int count = System.Math.Min(group.Length, MealCouriers.PickupLimit(pawn, next.source));
                 if (count <= 0) { foreach (var s in group) RemoveStop(s); return; }
                 int taken = pawn.carryTracker.TryStartCarry(next.source, count, false);
+                // The source is no longer needed by this job. Keeping its reservation can
+                // lock a remainder on the map, or follow the original Thing into a recipient.
+                ReleaseSourceReservation(next.source);
                 for (int i = 0; i < group.Length; i++)
                 {
                     var stop = group[i];
