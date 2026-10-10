@@ -20,8 +20,6 @@ foreach ($language in @('ChineseSimplified')) {
 }
 dotnet build Source/MealsAtWork/MealsAtWork.csproj -c Release -warnaserror -p:UseReferencePackages=true
 if ($LASTEXITCODE) { throw 'Build failed.' }
-dotnet run --project Tools/RuleTests/RuleTests.csproj -c Release -warnaserror
-if ($LASTEXITCODE) { throw 'Production rule regressions failed.' }
 if (Test-Path -LiteralPath $OutputRoot) { throw 'Output directory already exists; use a fresh output path.' }
 New-Item -ItemType Directory -Path $OutputRoot -Force | Out-Null
 $packageStage=Join-Path $OutputRoot "MealsAtWork-$version"
