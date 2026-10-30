@@ -34,6 +34,13 @@ namespace DeskLunch
             if (radius <= 0 || !food.def.ingestible.tableDesired) return false;
             bool normalFound = Toils_Ingest.TryFindChairOrSpot(pawn, food, out var normalCell);
             bool properTable = normalFound && GenAdj.CardinalDirections.Any(d => (normalCell + d).InBounds(pawn.Map) && (normalCell + d).HasEatSurface(pawn.Map));
+            var assignment = pawn.timetable?.CurrentAssignment;
+            var manager = LunchBreakUtility.Manager(pawn);
+            var record = manager.Get(pawn);
+            bool workTime = assignment != null && assignment.defName != "Anything" && MealSchedule.AllowsWorkMeals(assignment);
+            bool workBreak = (assignment == null || assignment.defName == "Anything")
+                && record != null && !record.diningOnly && manager.Valid(record);
+            if (properTable && !workTime && !workBreak) return false;
             float maxDistance = radius * radius;
             var candidates = pawn.Map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial).OfType<Building_WorkTable>()
                 .Where(t => t.def.hasInteractionCell && EmptyForDining(t))
@@ -56,8 +63,6 @@ namespace DeskLunch
                     pawn.Map.reservationManager.Release(table, pawn, pawn.CurJob);
                     continue;
                 }
-                var manager = LunchBreakUtility.Manager(pawn);
-                var record = manager.Get(pawn);
                 if (record == null)
                 {
                     record = new WorkMealSession { pawn = pawn, diningOnly = true, workJobId = -1,
