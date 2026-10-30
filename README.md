@@ -13,7 +13,7 @@
 
 殖民者、具备搬运工作能力的机械体和训练过搬运的动物都可以配送餐食。拥有食物需求的玩家机械体也能享用工作餐。
 
-支持 **RimWorld 1.6**，需要 **Harmony**。提供 Common Sense、Pick Up And Haul、Schedule Everything 兼容适配和简体中文。原名 Desk Lunch。
+支持 **RimWorld 1.6 / 1.7**，需要 **Harmony**。提供 Common Sense、Pick Up And Haul、Schedule Everything 兼容适配和简体中文。原名 Desk Lunch。
 
 ## 开发资料
 
